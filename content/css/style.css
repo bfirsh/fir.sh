@@ -1,0 +1,226 @@
+/* RESET */
+html{color:#000;background:#FFF;}body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,textarea,p,blockquote,th,td{margin:0;padding:0;}table{border-collapse:collapse;border-spacing:0;}fieldset,img{border:0;}address,caption,cite,code,dfn,em,strong,th,var{font-style:normal;font-weight:normal;}li{list-style:none;}caption,th{text-align:left;}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal;}q:before,q:after{content:'';}abbr,acronym{border:0;font-variant:normal;}sup{vertical-align:text-top;}sub{vertical-align:text-bottom;}input,textarea,select{font-family:inherit;font-size:inherit;font-weight:inherit;}input,textarea,select{*font-size:100%;}legend{color:#000;}del,ins{text-decoration:none;}
+
+
+/* BLOCK ELEMENTS */
+
+body {
+    font-family: "Palatino", Georgia, serif;
+    color: #333;
+    font-size: 100%; /* 16px */
+    line-height: 1.75; /* 28px (for 16px) */
+    text-rendering: optimizeLegibility;
+}
+
+#body {
+    width: 32em;
+    margin: 7em auto;
+}
+
+h1 {
+    color: #CCC;
+    font-weight: 100;
+    font-variant: small-caps;
+    letter-spacing: 3px; /* In pixels because Firefox rounds to nearest pixel. Silly Firefox. */
+    font-size: 2em; /* 32px, line height 56px */
+    padding-bottom: 0.875em;
+}
+
+h1 a:link, h1 a:visited, h1 a:active, h1 a:hover {
+    border: 0;
+    color: #CCC;
+}
+
+h1 a:hover {
+    color: #DDD;
+}
+
+h1 a:first-child {
+    color: #8F9ECC;
+}
+
+h1 a:first-child:hover {
+    color: #B2BFE6;
+}
+
+h2, h3 {
+    font-weight: 100;
+}
+
+/* headings intentionally end half a baseline short */
+h2 {
+    padding-top: 0.25em; /* 28px, line height 49px */
+    font-size: 1.75em;
+    padding-bottom: 0.5em;
+}
+
+h3 {
+    font-size: 1.5em; /* 24px, line height 42px */
+    padding: 0.292em 0; /* 7px */
+    text-transform: lowercase;
+    font-variant: small-caps;
+    letter-spacing: 0.15em;
+}
+
+/* block level elements intentionally start and end half a baseline short */
+p, ul, ol, table, blockquote, pre, canvas {
+    padding: 0.875em 0; /* Half line height (14px) on top and bottom */
+    display: block; /* fix table padding */
+}
+
+ul, ol {
+    margin-left: 2em;
+}
+
+ul li {
+    list-style: square outside;
+}
+
+ol li {
+    list-style: decimal outside;
+}
+
+th, td {
+    border: 1px solid #333;
+    padding: 0 0.5em 0 0.5em;
+}
+
+th {
+    background-color: #EEE;
+    font-weight: bold;
+    text-align: center;
+}
+
+hr {
+    border: 1px solid #CCC;
+    border-width: 1px 0 0 0;
+    padding-bottom: 3em;
+    margin: 0;
+}
+
+
+/* INLINE ELEMENTS */
+
+a:link, a:visited, a:active, a:hover {
+    color: #8F9ECC;
+    text-decoration: none;
+    border-bottom: 1px solid #CCC;
+}
+
+a:hover {
+    color: #CCC;
+}
+
+abbr, acronym {
+    border-bottom: 1px dotted #000;
+    cursor: help;
+}
+
+em {
+    font-style: italic;
+}
+
+strong { 
+    font-weight: bold;
+}
+
+/* DESIGN CLASSES */
+
+.post {
+    margin: 0;
+    padding-bottom: 2.625em; /* 1.5 * line height */
+}
+
+.details {
+    float: left;
+    margin-left: -16em;
+    padding-top: 1.125em;
+    width: 12.5em;
+    color: #CCC;
+    text-align: right;
+    font-variant: small-caps;
+    text-transform: lowercase;
+}
+
+/* HOME */
+
+#home #body {
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    margin-left: -16em;
+    margin-top: -7.875em; /* height 7 base lines (12.25em), minus an extra baseline */
+}
+
+#home h1 {
+    padding: 0;
+    text-align: center;
+    font-size: 3em; /* 48px, line height 84px */
+    margin-bottom: 0.583em;
+    color: #8F9ECC;
+    letter-spacing: 4.5px;
+}
+
+#home p {
+    padding-top: 0;
+}
+
+#i-am-a, #i-do-stuff {
+    text-align: center;
+    font-size: 1.25em; /* 20px, line height 35px */
+    padding: 0;
+    margin-bottom: -0.35em;
+}
+
+#i-do-stuff, #i-communicate {
+    margin: 0;
+}
+
+#i-do-stuff li, #i-communicate li {
+    display: inline-block;
+    list-style-type: none;
+    padding-left: 0.3em;
+}
+
+#i-do-stuff li:first-child, #i-communicate li:first-child {
+    padding-left: 0em;
+}
+
+
+#i-do-stuff li:before, #i-communicate li:before {
+    padding-right: 0.5em;
+    content: " \00B7 ";
+}
+
+#i-do-stuff li:first-child:before, #i-communicate li:first-child:before {
+    padding-left: 0;
+    content: "";
+}
+
+#i-communicate {
+    text-align: center;
+}
+
+/* JSNES */
+
+#jsnes {
+    text-align: center;
+    font-size: 0.875em;
+}
+
+.nes-screen {
+    display: block;
+    margin: 0 auto 1em auto;
+}
+
+.nes-roms, .nes-controls {
+    margin-bottom: 1em;
+}
+
+.nes-controls input {
+    margin-right: 0.25em;
+}
+
+.nes-status {
+    color: #CCC;
+}
