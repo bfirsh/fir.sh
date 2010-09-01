@@ -70,7 +70,7 @@ var JSNES = function(opts) {
     this.ui.updateStatus("Ready to load a ROM.");
 };
 
-JSNES.VERSION = "24f7d792ec597538516b";
+JSNES.VERSION = "6da8be591d2cd43f25ce";
 
 JSNES.prototype = {
     isRunning: false,
@@ -6849,7 +6849,7 @@ if (typeof jQuery !== 'undefined') {
             
                 writeFrame: function(buffer, prevBuffer) {
                     var imageData = this.canvasImageData.data;
-                    var pixel, j;
+                    var pixel, i, j;
 
                     for (i=0; i<256*240; i++) {
                         pixel = buffer[i];
