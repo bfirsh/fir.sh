@@ -39,8 +39,11 @@ data_sources:
     # The path where layouts should be mounted. The layouts root behaves the
     # same as the items root, but applies to layouts rather than items.
     layouts_root: /
+    config:
+      allow_periods_in_identifiers: true
 
 deploy:
   default:
     dst: "benfirshman.com:/var/www/benfirshman.com"
     options: ['-ave ssh', '--exclude=.DS_Store', '--exclude=*~']
+
