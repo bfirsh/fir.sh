@@ -70,7 +70,7 @@ var JSNES = function(opts) {
     this.ui.updateStatus("Ready to load a ROM.");
 };
 
-JSNES.VERSION = "6da8be591d2cd43f25ce";
+JSNES.VERSION = "a51193129179cf301154";
 
 JSNES.prototype = {
     isRunning: false,
@@ -241,14 +241,30 @@ JSNES.prototype = {
     },
     
     setFramerate: function(rate){
-        this.nes.opts.preferredFrameRate = rate;
-        this.nes.frameTime = 1000 / rate;
+        this.opts.preferredFrameRate = rate;
+        this.frameTime = 1000 / rate;
         this.papu.setSampleRate(this.opts.sampleRate, false);
     },
     
     setLimitFrames: function(limit) {
         this.limitFrames = limit;
         this.lastFrameTime = null;
+    },
+    
+    toJSON: function() {
+        return {
+            'romData': this.romData,
+            'cpu': this.cpu.toJSON(),
+            'mmap': this.mmap.toJSON(),
+            'ppu': this.ppu.toJSON()
+        };
+    },
+    
+    fromJSON: function(s) {
+        this.loadRom(s.romData);
+        this.cpu.fromJSON(s.cpu);
+        this.mmap.fromJSON(s.mmap);
+        this.ppu.fromJSON(s.ppu);
     }
 };
 
@@ -272,10 +288,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 JSNES.Utils = {
-    arraycopy: function(src, srcPos, dest, destPos, length) {
-        for (var i=0; i<length; ++i) {
-            dest[destPos+i] = src[srcPos+i];
+    copyArrayElements: function(src, srcPos, dest, destPos, length) {
+        for (var i = 0; i < length; ++i) {
+            dest[destPos + i] = src[srcPos + i];
         }
+    },
+    
+    copyArray: function(src) {
+        var dest = new Array(src.length);
+        for (var i = 0; i < src.length; i++) {
+            dest[i] = src[i];
+        }
+        return dest;
+    },
+    
+    fromJSON: function(obj, state) {
+        for (var i = 0; i < obj.JSON_PROPERTIES.length; i++) {
+            obj[obj.JSON_PROPERTIES[i]] = state[obj.JSON_PROPERTIES[i]];
+        }
+    },
+    
+    toJSON: function(obj) {
+        var state = {};
+        for (var i = 0; i < obj.JSON_PROPERTIES.length; i++) {
+            state[obj.JSON_PROPERTIES[i]] = obj[obj.JSON_PROPERTIES[i]];
+        }
+        return state;
+    },
+    
+    isIE: function() {
+        return (/msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent));
     }
 };
 
@@ -321,7 +363,6 @@ JSNES.CPU = function(nes) {
     this.F_NOTUSED_NEW = null;
     this.F_BRK = null;
     this.F_BRK_NEW = null;
-    this.palCnt = null;
     this.opdata = null;
     this.cyclesToHalt = null;
     this.crash = null;
@@ -329,7 +370,7 @@ JSNES.CPU = function(nes) {
     this.irqType = null;
     
     this.reset();
-}
+};
 
 JSNES.CPU.prototype = {
     // IRQ Types
@@ -383,7 +424,6 @@ JSNES.CPU.prototype = {
         this.F_BRK = 1;
         this.F_BRK_NEW = 1;
         
-        this.palCnt = 0;
         this.opdata = new JSNES.CPU.OpData().opdata;
         this.cyclesToHalt = 0;
         
@@ -395,7 +435,6 @@ JSNES.CPU.prototype = {
         this.irqType = null;
 
     },
-    
     
     // Emulates a single CPU instruction, returns the number of cycles
     emulate: function() {
@@ -1483,6 +1522,24 @@ JSNES.CPU.prototype = {
         this.F_NOTUSED   = (st>>5)&1;
         this.F_OVERFLOW  = (st>>6)&1;
         this.F_SIGN      = (st>>7)&1;
+    },
+    
+    JSON_PROPERTIES: [
+        'mem', 'cyclesToHalt', 'irqRequested', 'irqType',
+        // Registers
+        'REG_ACC', 'REG_X', 'REG_Y', 'REG_SP', 'REG_PC', 'REG_PC_NEW',
+        'REG_STATUS',
+        // Status
+        'F_CARRY', 'F_DECIMAL', 'F_INTERRUPT', 'F_INTERRUPT_NEW', 'F_OVERFLOW', 
+        'F_SIGN', 'F_ZERO', 'F_NOTUSED', 'F_NOTUSED_NEW', 'F_BRK', 'F_BRK_NEW'
+    ],
+    
+    toJSON: function() {
+        return JSNES.Utils.toJSON(this);
+    },
+    
+    fromJSON: function(s) {
+        JSNES.Utils.fromJSON(this, s);
     }
 }
 
@@ -1953,7 +2010,7 @@ JSNES.CPU.OpData.prototype = {
             ((size  &0xFF)<<16)| 
             ((cycles&0xFF)<<24);
     }
-}
+};
 
 
 /*
@@ -2361,11 +2418,6 @@ JSNES.Mappers[0].prototype = {
     joy2Read: function() {
         var ret;
     
-        this.joy2StrobeState++;
-        if (this.joy2StrobeState == 24) {
-            this.joy2StrobeState = 0;
-        }
-    
         switch (this.joy2StrobeState) {
             case 0:
             case 1:
@@ -2387,17 +2439,23 @@ JSNES.Mappers[0].prototype = {
             case 15:
             case 16:
             case 17:
+            case 18:
                 ret = 0;
                 break;
-            case 18:
+            case 19:
                 ret = 1;
                 break;
             default:
                 ret = 0;
         }
+
+        this.joy2StrobeState++;
+        if (this.joy2StrobeState == 24) {
+            this.joy2StrobeState = 0;
+        }
     
         return ret;
-    },
+      },
 
     loadROM: function() {
         if (!this.nes.rom.valid || this.nes.rom.romCount < 1) {
@@ -2454,7 +2512,7 @@ JSNES.Mappers[0].prototype = {
             var ram = this.nes.rom.batteryRam;
             if (ram !== null && ram.length == 0x2000) {
                 // Load Battery RAM into memory:
-                JSNES.Utils.arraycopy(ram, 0, this.nes.cpu.mem, 0x6000, 0x2000);
+                JSNES.Utils.copyArrayElements(ram, 0, this.nes.cpu.mem, 0x6000, 0x2000);
             }
         }
     },
@@ -2464,7 +2522,7 @@ JSNES.Mappers[0].prototype = {
         bank %= this.nes.rom.romCount;
         //var data = this.nes.rom.rom[bank];
         //cpuMem.write(address,data,data.length);
-        JSNES.Utils.arraycopy(this.nes.rom.rom[bank], 0, this.nes.cpu.mem, address, 16384);
+        JSNES.Utils.copyArrayElements(this.nes.rom.rom[bank], 0, this.nes.cpu.mem, address, 16384);
     },
 
     loadVromBank: function(bank, address) {
@@ -2473,11 +2531,11 @@ JSNES.Mappers[0].prototype = {
         }
         this.nes.ppu.triggerRendering();
     
-        JSNES.Utils.arraycopy(this.nes.rom.vrom[bank % this.nes.rom.vromCount], 
+        JSNES.Utils.copyArrayElements(this.nes.rom.vrom[bank % this.nes.rom.vromCount], 
             0, this.nes.ppu.vramMem, address, 4096);
     
         var vromTile = this.nes.rom.vromTile[bank % this.nes.rom.vromCount];
-        JSNES.Utils.arraycopy(vromTile, 0, this.nes.ppu.ptTile,address >> 4, 256);
+        JSNES.Utils.copyArrayElements(vromTile, 0, this.nes.ppu.ptTile,address >> 4, 256);
     },
 
     load32kRomBank: function(bank, address) {
@@ -2504,7 +2562,7 @@ JSNES.Mappers[0].prototype = {
     
         var bank4k = parseInt(bank1k / 4, 10) % this.nes.rom.vromCount;
         var bankoffset = (bank1k % 4) * 1024;
-        JSNES.Utils.arraycopy(this.nes.rom.vrom[bank4k], 0, 
+        JSNES.Utils.copyArrayElements(this.nes.rom.vrom[bank4k], 0, 
             this.nes.ppu.vramMem, bankoffset, 1024);
     
         // Update tiles:
@@ -2523,7 +2581,7 @@ JSNES.Mappers[0].prototype = {
     
         var bank4k = parseInt(bank2k / 2, 10) % this.nes.rom.vromCount;
         var bankoffset = (bank2k % 2) * 2048;
-        JSNES.Utils.arraycopy(this.nes.rom.vrom[bank4k], bankoffset,
+        JSNES.Utils.copyArrayElements(this.nes.rom.vrom[bank4k], bankoffset,
             this.nes.ppu.vramMem, address, 2048);
     
         // Update tiles:
@@ -2539,7 +2597,7 @@ JSNES.Mappers[0].prototype = {
         var offset = (bank8k % 2) * 8192;
     
         //this.nes.cpu.mem.write(address,this.nes.rom.rom[bank16k],offset,8192);
-        JSNES.Utils.arraycopy(this.nes.rom.rom[bank16k], offset, 
+        JSNES.Utils.copyArrayElements(this.nes.rom.rom[bank16k], offset, 
                   this.nes.cpu.mem, address, 8192);
     },
 
@@ -2549,6 +2607,20 @@ JSNES.Mappers[0].prototype = {
 
     latchAccess: function(address) {
         // Does nothing. This is used by MMC2.
+    },
+    
+    toJSON: function() {
+        return {
+            'joy1StrobeState': this.joy1StrobeState,
+            'joy2StrobeState': this.joy2StrobeState,
+            'joypadLastWrite': this.joypadLastWrite
+        };
+    },
+    
+    fromJSON: function(s) {
+        this.joy1StrobeState = s.joy1StrobeState;
+        this.joy2StrobeState = s.joy2StrobeState;
+        this.joypadLastWrite = s.joypadLastWrite;
     }
 };
 
@@ -2816,6 +2888,34 @@ JSNES.Mappers[1].prototype.switch32to16 = function() {
     // not yet.
 };
 
+JSNES.Mappers[1].prototype.toJSON = function() {
+    var s = JSNES.Mappers[0].prototype.toJSON.apply(this);
+    s.mirroring = this.mirroring;
+    s.oneScreenMirroring = this.oneScreenMirroring;
+    s.prgSwitchingArea = this.prgSwitchingArea;
+    s.prgSwitchingSize = this.prgSwitchingSize;
+    s.vromSwitchingSize = this.vromSwitchingSize;
+    s.romSelectionReg0 = this.romSelectionReg0;
+    s.romSelectionReg1 = this.romSelectionReg1;
+    s.romBankSelect = this.romBankSelect;
+    s.regBuffer = this.regBuffer;
+    s.regBufferCounter = this.regBufferCounter;
+    return s;
+};
+
+JSNES.Mappers[1].prototype.fromJSON = function(s) {
+    JSNES.Mappers[0].prototype.fromJSON.apply(this, s);
+    this.mirroring = s.mirroring;
+    this.oneScreenMirroring = s.oneScreenMirroring;
+    this.prgSwitchingArea = s.prgSwitchingArea;
+    this.prgSwitchingSize = s.prgSwitchingSize;
+    this.vromSwitchingSize = s.vromSwitchingSize;
+    this.romSelectionReg0 = s.romSelectionReg0;
+    this.romSelectionReg1 = s.romSelectionReg1;
+    this.romBankSelect = s.romBankSelect;
+    this.regBuffer = s.regBuffer;
+    this.regBufferCounter = s.regBufferCounter;
+};
 
 JSNES.Mappers[2] = function(nes) {
     this.nes = nes;
@@ -3089,6 +3189,31 @@ JSNES.Mappers[4].prototype.loadROM = function(rom) {
 
     // Do Reset-Interrupt:
     this.nes.cpu.requestIrq(this.nes.cpu.IRQ_RESET);
+};
+
+JSNES.Mappers[4].prototype.toJSON = function() {
+    var s = JSNES.Mappers[0].prototype.toJSON.apply(this);
+    s.command = this.command;
+    s.prgAddressSelect = this.prgAddressSelect;
+    s.chrAddressSelect = this.chrAddressSelect;
+    s.pageNumber = this.pageNumber;
+    s.irqCounter = this.irqCounter;
+    s.irqLatchValue = this.irqLatchValue;
+    s.irqEnable = this.irqEnable;
+    s.prgAddressChanged = this.prgAddressChanged;
+    return s;
+};
+
+JSNES.Mappers[4].prototype.fromJSON = function(s) {
+    JSNES.Mappers[0].prototype.fromJSON.apply(this, s);
+    this.command = s.command;
+    this.prgAddressSelect = s.prgAddressSelect;
+    this.chrAddressSelect = s.chrAddressSelect;
+    this.pageNumber = s.pageNumber;
+    this.irqCounter = s.irqCounter;
+    this.irqLatchValue = s.irqLatchValue;
+    this.irqEnable = s.irqEnable;
+    this.prgAddressChanged = s.prgAddressChanged;
 };
 
 
@@ -4593,7 +4718,6 @@ JSNES.PPU = function(nes) {
     this.vramBufferedReadValue = null;
     this.firstWrite = null;
     this.sramAddress = null;
-    this.mapperIrqCounter     = null;
     this.currentMirroring = null;
     this.requestEndFrame = null;
     this.nmiOk = null;
@@ -4631,8 +4755,7 @@ JSNES.PPU = function(nes) {
     this.prevBuffer = null;
     this.bgbuffer = null;
     this.pixrendered = null;
-    this.spr0dummybuffer = null;
-    this.dummyPixPriTable = null;
+    
     this.validTileData = null;
     this.scantile = null;
     this.scanline = null;
@@ -4694,7 +4817,6 @@ JSNES.PPU.prototype = {
         // SPR-RAM I/O:
         this.sramAddress = 0; // 8-bit only.
         
-        this.mapperIrqCounter     = 0;
         this.currentMirroring = -1;
         this.requestEndFrame = false;
         this.nmiOk = false;
@@ -4746,8 +4868,6 @@ JSNES.PPU.prototype = {
         this.prevBuffer = new Array(256*240);
         this.bgbuffer = new Array(256*240);
         this.pixrendered = new Array(256*240);
-        this.spr0dummybuffer = new Array(256*240);
-        this.dummyPixPriTable = new Array(256*240);
 
         this.validTileData = null;
 
@@ -6009,38 +6129,109 @@ JSNES.PPU.prototype = {
     
     // Updates the internally buffered sprite
     // data with this new byte of info.
-    spriteRamWriteUpdate: function(address, value){
+    spriteRamWriteUpdate: function(address, value) {
         var tIndex = parseInt(address / 4, 10);
         
         if (tIndex === 0) {
             //updateSpr0Hit();
-            this.checkSprite0(this.scanline-20);
+            this.checkSprite0(this.scanline - 20);
         }
         
-        if (address%4 === 0) {
+        if (address % 4 === 0) {
             // Y coordinate
             this.sprY[tIndex] = value;
-        }else if (address%4 == 1) {
+        }
+        else if (address % 4 == 1) {
             // Tile index
             this.sprTile[tIndex] = value;
-        }else if (address%4 == 2) {
+        }
+        else if (address % 4 == 2) {
             // Attributes
-            this.vertFlip[tIndex] = ((value&0x80)!==0);
-            this.horiFlip[tIndex] = ((value&0x40)!==0);
-            this.bgPriority[tIndex] = ((value&0x20)!==0);
-            this.sprCol[tIndex] = (value&3)<<2;
+            this.vertFlip[tIndex] = ((value & 0x80) !== 0);
+            this.horiFlip[tIndex] = ((value & 0x40) !==0 );
+            this.bgPriority[tIndex] = ((value & 0x20) !== 0);
+            this.sprCol[tIndex] = (value & 3) << 2;
             
-        }else if (address%4 == 3) {
+        }
+        else if (address % 4 == 3) {
             // X coordinate
             this.sprX[tIndex] = value;
         }
     },
     
-    doNMI: function(){
+    doNMI: function() {
         // Set VBlank flag:
         this.setStatusFlag(this.STATUS_VBLANK,true);
         //nes.getCpu().doNonMaskableInterrupt();
         this.nes.cpu.requestIrq(this.nes.cpu.IRQ_NMI);
+    },
+    
+    JSON_PROPERTIES: [
+        // Memory
+        'vramMem', 'spriteMem',
+        // Counters
+        'cntFV', 'cntV', 'cntH', 'cntVT', 'cntHT',
+        // Registers
+        'regFV', 'regV', 'regH', 'regVT', 'regHT', 'regFH', 'regS',
+        // VRAM addr
+        'vramAddress', 'vramTmpAddress',
+        // Control/Status registers
+        'f_nmiOnVblank', 'f_spriteSize', 'f_bgPatternTable', 'f_spPatternTable', 
+        'f_addrInc', 'f_nTblAddress', 'f_color', 'f_spVisibility', 
+        'f_bgVisibility', 'f_spClipping', 'f_bgClipping', 'f_dispType',
+        // VRAM I/O
+        'vramBufferedReadValue', 'firstWrite',
+        // Mirroring
+        'currentMirroring', 'vramMirrorTable', 'ntable1',
+        // SPR-RAM I/O
+        'sramAddress',
+        // Sprites. Most sprite data is rebuilt from spriteMem
+        'hitSpr0',
+        // Palettes
+        'sprPalette', 'imgPalette',
+        // Rendering progression
+        'curX', 'scanline', 'lastRenderedScanline', 'curNt', 'scantile',
+        // Used during rendering
+        'attrib', 'buffer', 'bgbuffer', 'pixrendered',
+        // Misc
+        'requestEndFrame', 'nmiOk', 'dummyCycleToggle', 'nmiCounter', 
+        'validTileData', 'scanlineAlreadyRendered'
+    ],
+    
+    toJSON: function() {
+        var i;
+        var state = JSNES.Utils.toJSON(this);
+        
+        state.nameTable = [];
+        for (i = 0; i < this.nameTable.length; i++) {
+            state.nameTable[i] = this.nameTable[i].toJSON();
+        }
+        
+        state.ptTile = [];
+        for (i = 0; i < this.ptTile.length; i++) {
+            state.ptTile[i] = this.ptTile[i].toJSON();
+        }
+        
+        return state;
+    },
+    
+    fromJSON: function(state) {
+        var i;
+        
+        JSNES.Utils.fromJSON(this, state);
+        
+        for (i = 0; i < this.nameTable.length; i++) {
+            this.nameTable[i].fromJSON(state.nameTable[i]);
+        }
+        
+        for (i = 0; i < this.ptTile.length; i++) {
+            this.ptTile[i].fromJSON(state.ptTile[i]);
+        }
+        
+        // Sprite data:
+        for (i = 0; i < this.spriteMem.length; i++) {
+            this.spriteRamWriteUpdate(i, this.spriteMem[i]);
+        }
     }
 };
 
@@ -6082,6 +6273,18 @@ JSNES.PPU.NameTable.prototype = {
                 }
             }
         }
+    },
+    
+    toJSON: function() {
+        return {
+            'tile': this.tile,
+            'attrib': this.attrib
+        };
+    },
+    
+    fromJSON: function(s) {
+        this.tile = s.tile;
+        this.attrib = s.attrib;
     }
 };
 
@@ -6401,7 +6604,19 @@ JSNES.PPU.Tile.prototype = {
     },
     
     isTransparent: function(x, y){
-        return (this.pix[(y<<3)+x] === 0);
+        return (this.pix[(y << 3) + x] === 0);
+    },
+    
+    toJSON: function() {
+        return {
+            'opaque': this.opaque,
+            'pix': this.pix
+        };
+    },
+
+    fromJSON: function(s) {
+        this.opaque = s.opaque;
+        this.pix = s.pix;
     }
 };
 
@@ -6656,7 +6871,10 @@ if (typeof jQuery !== 'undefined') {
             var UI = function(nes) {
                 var self = this;
                 self.nes = nes;
-        
+                
+                /*
+                 * Create UI
+                 */
                 self.root = $('<div></div>');
                 self.screen = $('<canvas class="nes-screen" width="256" height="240"></canvas>').appendTo(self.root);
                 
@@ -6677,25 +6895,17 @@ if (typeof jQuery !== 'undefined') {
                 };
                 self.status = $('<p class="nes-status">Booting up...</p>').appendTo(self.root);
                 self.root.appendTo(parent);
-        
+                
+                /*
+                 * ROM loading
+                 */
                 self.romSelect.change(function() {
-                    self.updateStatus("Downloading...");
-                    $.ajax({
-                        url: escape(self.romSelect.val()),
-                        xhr: function() {
-                            var xhr = $.ajaxSettings.xhr();
-                            // Download as binary
-                            xhr.overrideMimeType('text/plain; charset=x-user-defined');
-                            return xhr;
-                        },
-                        success: function(data) {
-                            self.nes.loadRom(data);
-                            self.nes.start();
-                            self.enable();
-                        }
-                    });
+                    self.loadROM();
                 });
-        
+                
+                /*
+                 * Buttons
+                 */
                 self.buttons.pause.click(function() {
                     if (self.nes.isRunning) {
                         self.nes.stop();
@@ -6743,8 +6953,11 @@ if (typeof jQuery !== 'undefined') {
                         self.zoomed = true;
                     }
                 });
-        
-                // Mouse experiments. Requires jquery.dimensions.js
+                
+                /*
+                 * Lightgun experiments with mouse
+                 * (Requires jquery.dimensions.js)
+                 */
                 if ($.offset) {
                     self.screen.mousedown(function(e) {
                         if (self.nes.mmap) {
@@ -6768,7 +6981,9 @@ if (typeof jQuery !== 'undefined') {
                     self.setRoms(roms);
                 }
             
-                // Canvas
+                /*
+                 * Canvas
+                 */
                 self.canvasContext = self.screen[0].getContext('2d');
                 
                 if (!self.canvasContext.getImageData) {
@@ -6777,15 +6992,11 @@ if (typeof jQuery !== 'undefined') {
                 }
                 
                 self.canvasImageData = self.canvasContext.getImageData(0, 0, 256, 240);
-                self.canvasContext.fillStyle = 'black';
-                self.canvasContext.fillRect(0, 0, 256, 240); // set alpha to opaque
+                self.resetCanvas();
             
-                // Set alpha
-                for (var i = 3; i < this.canvasImageData.data.length-3; i+=4) {
-                    this.canvasImageData.data[i] = 0xFF;
-                }
-            
-                // Keyboard
+                /*
+                 * Keyboard
+                 */
                 $(document).
                     bind('keydown', function(evt) {
                         self.nes.keyboard.keyDown(evt); 
@@ -6797,14 +7008,64 @@ if (typeof jQuery !== 'undefined') {
                         self.nes.keyboard.keyPress(evt);
                     });
             
-                // Sound
+                /*
+                 * Sound
+                 */
                 self.dynamicaudio = new DynamicAudio({
                     swf: nes.opts.swfPath+'dynamicaudio.swf'
                 });
             };
         
             UI.prototype = {    
-                // Enable and reset UI elements
+                loadROM: function() {
+                    var self = this;
+                    self.updateStatus("Downloading...");
+                    $.ajax({
+                        url: escape(self.romSelect.val()),
+                        xhr: function() {
+                            var xhr = $.ajaxSettings.xhr();
+                            if (typeof xhr.overrideMimeType !== 'undefined') {
+                                // Download as binary
+                                xhr.overrideMimeType('text/plain; charset=x-user-defined');
+                            }
+                            self.xhr = xhr;
+                            return xhr;
+                        },
+                        complete: function(xhr, status) {
+                            var i, data;
+                            if (JSNES.Utils.isIE()) {
+                                var charCodes = JSNESBinaryToArray(
+                                    xhr.responseBody
+                                ).toArray();
+                                data = String.fromCharCode.apply(
+                                    undefined, 
+                                    charCodes
+                                );
+                            }
+                            else {
+                                data = xhr.responseText;
+                            }
+                            self.nes.loadRom(data);
+                            self.nes.start();
+                            self.enable();
+                        }
+                    });
+                },
+                
+                resetCanvas: function() {
+                    this.canvasContext.fillStyle = 'black';
+                    // set alpha to opaque
+                    this.canvasContext.fillRect(0, 0, 256, 240);
+
+                    // Set alpha
+                    for (var i = 3; i < this.canvasImageData.data.length-3; i += 4) {
+                        this.canvasImageData.data[i] = 0xFF;
+                    }
+                },
+                
+                /*
+                 * Enable and reset UI elements
+                 */
                 enable: function() {
                     this.buttons.pause.attr("disabled", null);
                     if (this.nes.isRunning) {

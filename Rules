@@ -18,6 +18,10 @@ compile '/js/*' do
   # don’t filter or layout
 end
 
+compile '/vbscript/*' do
+  # don’t filter or layout
+end
+
 compile '/swf/*' do
   # don’t filter or layout
 end
@@ -34,6 +38,11 @@ end
 route '/js/*' do
   item.identifier.chop + '.js'
 end
+
+route '/vbscript/*' do
+  item.identifier.chop + '.vbscript'
+end
+
 
 route '/swf/*' do
   item.identifier.chop + '.swf'
