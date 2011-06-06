@@ -42,8 +42,4 @@ data_sources:
     config:
       allow_periods_in_identifiers: true
 
-deploy:
-  default:
-    dst: "benfirshman.com:/var/www/benfirshman.com"
-    options: ['-ave ssh', '--exclude=.DS_Store', '--exclude=*~']
 
