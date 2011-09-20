@@ -20,8 +20,6 @@ body {
 h1 {
     color: #CCC;
     font-weight: 100;
-    font-variant: small-caps;
-    letter-spacing: 3px; /* In pixels because Firefox rounds to nearest pixel. Silly Firefox. */
     font-size: 2em; /* 32px, line height 56px */
     padding-bottom: 0.875em;
 }
@@ -158,7 +156,7 @@ strong {
     font-size: 3em; /* 48px, line height 84px */
     margin-bottom: 0.583em;
     color: #8F9ECC;
-    letter-spacing: 4.5px;
+    letter-spacing: 1px;
 }
 
 #home p {
