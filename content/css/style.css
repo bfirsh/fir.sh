@@ -204,6 +204,7 @@ strong {
 #jsnes {
     text-align: center;
     font-size: 0.875em;
+    clear: both;
 }
 
 .nes-screen {
@@ -222,3 +223,18 @@ strong {
 .nes-status {
     color: #CCC;
 }
+
+.fb_iframe_widget,
+.twitter-share-button {
+    float: right !important;
+    display: block !important;
+    height: 20px;
+    position: relative;
+    top: -37px;
+}
+
+.fb_iframe_widget span {
+    position: relative;
+    top: -20px;
+}
+
