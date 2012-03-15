@@ -154,7 +154,7 @@ strong {
     padding: 0;
     text-align: center;
     font-size: 3em; /* 48px, line height 84px */
-    margin-bottom: 0.583em;
+    margin-bottom: 0;
     color: #8F9ECC;
     letter-spacing: 1px;
 }
@@ -165,9 +165,8 @@ strong {
 
 #i-am-a, #i-do-stuff {
     text-align: center;
-    font-size: 1.25em; /* 20px, line height 35px */
+    font-size: 1.1em; 
     padding: 0;
-    margin-bottom: -0.35em;
 }
 
 #i-do-stuff, #i-communicate {
