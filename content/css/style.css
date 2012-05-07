@@ -52,10 +52,10 @@ h1 {
 h1 a {
     display: block;
     height: 300px;
-    //background: rgb(211, 207, 186);
     background: #DFDBC7;
     color: white;
     position: relative;
+    letter-spacing: 1px;
 }
 
 h1, h2, h3 {
@@ -88,8 +88,6 @@ p {
 
 
 a {
-    //color: #BBB;
-    //color: #C0BCA7;
     color: #9C977E;
     text-decoration: none;
 }
