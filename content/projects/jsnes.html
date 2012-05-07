@@ -11,7 +11,7 @@ extra_body: |
         $(function() {
             new JSNES({
                 'swfPath': '/swf/',
-                'ui': $('#jsnes').text('').JSNESUI({
+                'ui': $('.nes').text('').JSNESUI({
                     "Working": [
                         ['Bubble Bobble', 'roms/Bubble Bobble (U).nes'],
                         
@@ -52,7 +52,6 @@ extra_body: |
     }(document, 'script', 'facebook-jssdk'));</script>
 ---
 
-    <h1><a href="/">Ben Firshman</a></h1>
     <h2>
       JSNES 
       <div class="fb-like" data-href="http://benfirshman.com/projects/jsnes/" data-send="false" data-layout="button_count" data-width="110" data-show-faces="true"></div>
@@ -60,10 +59,10 @@ extra_body: |
     </h2>
 
     
-    <div id="jsnes">Loading...</div>
+    <div class="nes">Loading...</div>
     
     <h3>Controls</h3>
-    <table id="controls">
+    <table>
         <tr>
             <th>Button</th>
             <th>Player 1</th>
@@ -112,8 +111,7 @@ extra_body: |
     
     <h3>About</h3>
     
-    <p>JSNES is a port of <a href="http://www.virtualnes.com/">vNES</a> to JavaScript, inspired by Matt Wescott&rsquo;s <a href="http://matt.west.co.tt/spectrum/jsspeccy/">JSSpeccy</a>. The video is output on a <a href="http://en.wikipedia.org/wiki/Canvas_(HTML_element)">canvas element</a>, and the sound is played with <a href="http://github.com/bfirsh/dynamicaudio.js">dynamicaudio.js</a>.</p>
+    <p>JSNES is a port of <a href="http://www.virtualnes.com/">vNES</a> to JavaScript, inspired by Matt Westcott&rsquo;s <a href="http://matt.west.co.tt/spectrum/jsspeccy/">JSSpeccy</a>. The video is output on a <a href="http://en.wikipedia.org/wiki/Canvas_(HTML_element)">canvas element</a>, and the sound is played with <a href="https://github.com/bfirsh/dynamicaudio.js">dynamicaudio.js</a>.</p>
     
-    <p>On a modern computer, JSNES should run at full speed on Google Chrome, Safari 4, Opera and IE 9. It is unlikely to run at full speed on Firefox unless you have a really fast computer.</p>
-        
-    <p>The source is available on <a href="http://github.com/bfirsh/jsnes/">Github</a>. Contributions are welcome!</p>
+    <p>The source is available on <a href="https://github.com/bfirsh/jsnes/">Github</a>.</p>
+
