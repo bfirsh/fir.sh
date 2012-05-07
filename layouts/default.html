@@ -3,7 +3,10 @@
 <head>
     <meta charset="utf-8">
     <title><%= @item[:title] %><% if @item.identifier != '/' %> &ndash; Ben Firshman <% end %></title>
-    <link rel="stylesheet" type="text/css" href="/css/style.css?v=2" media="screen">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <link rel="stylesheet" type="text/css" href="/css/style.css?v=3" media="screen">
     <!--[if IE]>
         <link rel="stylesheet" href="/css/ie.css" type="text/css" media="screen">
     <![endif]-->
@@ -41,9 +44,6 @@
     </div>
   </div>
 </div>
-
-<script type="text/javascript" src="http://use.typekit.com/twx3mqt.js"></script>
-<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
 
 <script type="text/javascript">
     var _gaq = _gaq || [];

@@ -205,7 +205,10 @@ h2 .fb_iframe_widget span {
 
     .content {
         max-width: 100%;
-        margin: 25px 50px;
+        margin: 25px 30px;
+    }
+    h1 span {
+        right: 30px;
     }
 
     h1 {
