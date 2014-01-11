@@ -1,5 +1,5 @@
-benfirshman.com
-===============
+fir.sh
+======
 
-Source for my personal site at [benfirshman.com](http://benfirshman.com/). Uses [nanoc](http://nanoc.stoneship.org/).
+Source for my personal site at [fir.sh](http://fir.sh). Uses [nanoc](http://nanoc.stoneship.org/).
 
