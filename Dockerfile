@@ -1,6 +1,6 @@
 FROM orchardup/nginx
-RUN apt-get install rubygems -y
-RUN gem install nanoc
+RUN apt-get update -qq && apt-get install rubygems -y
+RUN gem install nanoc -v 3.6.6
 ADD . /code
 WORKDIR /code
 RUN nanoc compile
