@@ -10,6 +10,8 @@
 #   item, use the pattern “/about/*/”; “/about/*” will also select the parent,
 #   because “*” matches zero or more characters.
 
+passthrough '/static/*'
+
 compile '/css/*' do
   # don’t filter or layout
 end
