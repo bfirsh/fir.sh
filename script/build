@@ -1,0 +1,4 @@
+#!/bin/bash
+docker build -t firsh .
+docker run -v `pwd`:/code firsh
+cp -r private/roms output/projects/jsnes/
