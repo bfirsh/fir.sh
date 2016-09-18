@@ -16,25 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-/*
-JSNES, based on Jamie Sanders' vNES
-Copyright (C) 2010 Ben Firshman
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 var JSNES = function(opts) {
     this.opts = {
         ui: JSNES.DummyUI,
@@ -44,7 +25,7 @@ var JSNES = function(opts) {
         fpsInterval: 500, // Time between updating FPS in ms
         showDisplay: true,
 
-        emulateSound: false,
+        emulateSound: true,
         sampleRate: 44100, // Sound sample rate in hz
         
         CPU_FREQ_NTSC: 1789772.5, //1789772.72727272d;
@@ -71,12 +52,11 @@ var JSNES = function(opts) {
     this.ui.updateStatus("Ready to load a ROM.");
 };
 
-JSNES.VERSION = "4e7a7260aaaeb7e1c5f6";
+JSNES.VERSION = "<%= version %>";
 
 JSNES.prototype = {
     isRunning: false,
     fpsFrameCount: 0,
-    limitFrames: true,
     romData: null,
     
     // Resets the system
@@ -99,7 +79,7 @@ JSNES.prototype = {
                 
                 this.frameInterval = setInterval(function() {
                     self.frame();
-                }, this.frameTime / 2);
+                }, this.frameTime);
                 this.resetFps();
                 this.printFps();
                 this.fpsInterval = setInterval(function() {
@@ -169,15 +149,7 @@ JSNES.prototype = {
                 }
             }
         }
-        if (this.limitFrames) {
-            if (this.lastFrameTime) {
-                while (+new Date() - this.lastFrameTime < this.frameTime) {
-                    // twiddle thumbs
-                }
-            }
-        }
         this.fpsFrameCount++;
-        this.lastFrameTime = +new Date();
     },
     
     printFps: function() {
@@ -245,11 +217,6 @@ JSNES.prototype = {
         this.opts.preferredFrameRate = rate;
         this.frameTime = 1000 / rate;
         this.papu.setSampleRate(this.opts.sampleRate, false);
-    },
-    
-    setLimitFrames: function(limit) {
-        this.limitFrames = limit;
-        this.lastFrameTime = null;
     },
     
     toJSON: function() {
@@ -2350,7 +2317,7 @@ JSNES.Mappers[0].prototype = {
             
             case 0x4016:
                 // Joystick 1 + Strobe
-                if (value === 0 && this.joypadLastWrite === 1) {
+                if ((value&1) === 0 && (this.joypadLastWrite&1) === 1) {
                     this.joy1StrobeState = 0;
                     this.joy2StrobeState = 0;
                 }
@@ -6899,7 +6866,7 @@ if (typeof jQuery !== 'undefined') {
                 self.buttons = {
                     pause: $('<input type="button" value="pause" class="nes-pause" disabled="disabled">').appendTo(self.controls),
                     restart: $('<input type="button" value="restart" class="nes-restart" disabled="disabled">').appendTo(self.controls),
-                    sound: $('<input type="button" value="enable sound" class="nes-enablesound">').appendTo(self.controls),
+                    sound: $('<input type="button" value="disable sound" class="nes-enablesound">').appendTo(self.controls),
                     zoom: $('<input type="button" value="zoom in" class="nes-zoom">').appendTo(self.controls)
                 };
                 self.status = $('<p class="nes-status">Booting up...</p>').appendTo(self.root);
@@ -7070,6 +7037,17 @@ if (typeof jQuery !== 'undefined') {
                     for (var i = 3; i < this.canvasImageData.data.length-3; i += 4) {
                         this.canvasImageData.data[i] = 0xFF;
                     }
+                },
+                
+                /*
+                *
+                * nes.ui.screenshot() --> return <img> element :)
+                */
+                screenshot: function() {
+                    var data = this.screen[0].toDataURL("image/png"),
+                        img = new Image();
+                    img.src = data;
+                    return img;
                 },
                 
                 /*
