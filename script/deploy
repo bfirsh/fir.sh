@@ -1,4 +1,0 @@
-#!/bin/bash
-set -e
-script/build
-s3cmd put -rP output/* s3://fir.sh

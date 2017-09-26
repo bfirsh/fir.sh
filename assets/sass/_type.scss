@@ -1,0 +1,47 @@
+html {
+  font-size: 22px;
+  line-height: 1.4;
+  font-weight: bold;
+
+  @include media(">=tablet") {
+    font-size: 26px;
+  }
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  color: #333;
+}
+
+::selection {
+  background: #333;
+  color: white
+}
+
+::-moz-selection {
+  background: #333;
+  color: white
+}
+
+a,
+a:hover,
+a:active {
+  color: #333;
+  text-decoration: none;
+  border-bottom: 1px solid #333;
+}
+
+a:active {
+  background: #333;
+  color: white
+}
+
+h1 {
+  font-size: 1.5rem;
+  font-weight: inherit;
+}
+
+h2 {
+  font-size: 1.25rem;
+  font-weight: inherit;
+}
