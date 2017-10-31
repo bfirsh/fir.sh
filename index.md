@@ -3,7 +3,7 @@ layout: default
 title: Ben Firshman
 ---
 
-## I am Ben Firshman, a technologist interested in journalism, academia, and developer tools.
+## I am Ben Firshman, a technologist interested in academia, journalism, and developer tools.
 
 Previously I led open source product at Docker. I have also founded a few startups, helped create The Guardian's iPad app, and worked on GOV.UK.
 
