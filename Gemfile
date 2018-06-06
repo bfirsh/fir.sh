@@ -1,3 +1,3 @@
 source 'https://rubygems.org'
-gem 'jekyll', '~> 3.8.2'
+gem 'jekyll', '~> 3.8.3'
 gem 'normalize-scss'
