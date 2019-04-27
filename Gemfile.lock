@@ -61,6 +61,3 @@ PLATFORMS
 DEPENDENCIES
   jekyll (~> 3.8.5)
   normalize-scss
-
-BUNDLED WITH
-   1.15.4
