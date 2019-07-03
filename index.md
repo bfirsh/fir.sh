@@ -3,7 +3,7 @@ layout: default
 title: Ben Firshman
 ---
 
-## I am Ben Firshman, a technologist interested in academia and developer tools.
+## I am Ben Firshman, a technologist building tools for researchers.
 
 Previously I led open source product at Docker and created Docker Compose. I have also founded a few companies, helped create The Guardian's iPad app, and worked on GOV.UK.
 
