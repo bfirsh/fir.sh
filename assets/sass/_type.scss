@@ -31,8 +31,9 @@ a:active {
   text-underline-offset: 3px;
 }
 
-a:active {
+a:focus {
   background: black;
+  outline: 0.333em solid black;
   color: white
 }
 
